@@ -8,11 +8,10 @@ import java.util.TreeMap;
 import org.springframework.context.MessageSource;
 
 public class Dictionary {
-	private MessageSource messageSource;
-	private TreeMap<String, String> wordList = new TreeMap<String, String>();
+	private DictionaryData data;
 	
 	public Dictionary(MessageSource messageSource) {
-		this.messageSource = messageSource;
+		data = new DictionaryData();
 	}
 	
 	public String translate(ArrayList<String> list, MessageSource messageSource, Locale locale) {
@@ -24,25 +23,29 @@ public class Dictionary {
 		return JSONify(map);
 	}
 	
-	public String add(String us, String uk) {
-		us = us.replace(".", " ");
-		uk = uk.replace(".", " ");
-		if (wordList.containsKey(us))
-			return "False";
-		
-		wordList.put(us, uk);
-		return "True";
+	public String add(String us, String uk) {		
+		return data.addWord(us.replace(".", " "), uk.replace(".", " "));
+	}
+	
+	public String remove(String word) {
+		return JSONify(word, data.deleteWord(word.toLowerCase().replace(".", " ")));
 	}
 		
 	private String getTranslation(String word, MessageSource messageSource, Locale locale) {
 		String trans;
-		trans = messageSource.getMessage(word + ".word", null, "", locale);//.replace(".", " ");
-		if (trans.equals("") && wordList.containsKey(word)) {
-			trans = wordList.get(word);
+		trans = messageSource.getMessage(word + ".word", null, "", locale);
+		if (trans.equals("") && data.contains(word)) {
+			trans = data.getTranslation(word);
 		} 
 		
 		System.out.println(word + " " + trans);
 		return trans;
+	}
+	
+	private String JSONify(String name, String value) {
+		TreeMap<String, String> map = new TreeMap<>();
+		map.put(name, value);
+		return JSONify(map);
 	}
 	
 	private String JSONify(TreeMap<String, String> values) {

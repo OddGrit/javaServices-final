@@ -40,6 +40,11 @@ public class DictionaryController {
 		list.add(word);
 		return dictionary.translate(list, messageSource, locale);
 	}
+	
+	@RequestMapping(path = "/{word}/remove", method = RequestMethod.DELETE)
+	public String delete(@PathVariable String word) {
+		return dictionary.remove(word);
+	}
 	 
 	@RequestMapping(path = "/add", method = RequestMethod.POST)
 	public String add(String us, String uk) {
